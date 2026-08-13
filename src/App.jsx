@@ -5,25 +5,25 @@ import { supabase } from "./supabaseClient";
    Design tokens
 --------------------------------------------------------- */
 const ITEMS = [
-  // Domain 1 — Nervous System Load & Recovery
+  // Domain 1: Nervous System Load & Recovery
   { id: "NS_1", domain: "Nervous System Load & Recovery", text: 'I feel wound-up or "on" even when nothing urgent is happening.', positive: false },
   { id: "NS_2", domain: "Nervous System Load & Recovery", text: "I can physically calm myself (breath, heart rate) after a stressful encounter.", positive: true },
   { id: "NS_5", domain: "Nervous System Load & Recovery", text: "I wake in the night with ministry concerns on my mind.", positive: false },
   { id: "NS_7", domain: "Nervous System Load & Recovery", text: "Stress builds up in me over the week without ever fully clearing.", positive: false },
   { id: "NS_10", domain: "Nervous System Load & Recovery", text: "I recover between demands rather than running on fumes.", positive: true },
-  // Domain 2 — Emotional Regulation & Well-Being
+  // Domain 2: Emotional Regulation & Well-Being
   { id: "ER_1", domain: "Emotional Regulation & Well-Being", text: "I can name what I'm feeling in the moment instead of being controlled by it.", positive: true },
   { id: "ER_2", domain: "Emotional Regulation & Well-Being", text: "A single difficult conversation can throw off the rest of my day.", positive: false },
   { id: "ER_6", domain: "Emotional Regulation & Well-Being", text: "I feel flat or low in a way that's hard to shake.", positive: false },
   { id: "ER_7", domain: "Emotional Regulation & Well-Being", text: "I find enjoyment and meaning in all areas of my life.", positive: true },
   { id: "ER_10", domain: "Emotional Regulation & Well-Being", text: "I have people I can be honest with about how I'm really doing.", positive: true },
-  // Domain 3 — Focus & Cognitive Stamina
+  // Domain 3: Focus & Cognitive Stamina
   { id: "FC_1", domain: "Focus & Cognitive Stamina", text: "I can stay focused on one task without constantly switching.", positive: true },
   { id: "FC_2", domain: "Focus & Cognitive Stamina", text: "By the end of the day, even small decisions feel exhausting.", positive: false },
   { id: "FC_3", domain: "Focus & Cognitive Stamina", text: "I can be fully present with a person in front of me.", positive: true },
   { id: "FC_6", domain: "Focus & Cognitive Stamina", text: "I put off decisions because I don't have the mental energy to make them.", positive: false },
   { id: "FC_7", domain: "Focus & Cognitive Stamina", text: "I can settle into deep, focused work (study, sermon prep, planning).", positive: true },
-  // Domain 4 — Ministry Depletion
+  // Domain 4: Ministry Depletion
   { id: "MD_1", domain: "Ministry Depletion", text: "I feel emotionally drained by the logistical demands of ministry at Lovers Lane Church.", positive: false },
   { id: "MD_3", domain: "Ministry Depletion", text: "I've become more detached toward the people I serve.", positive: false },
   { id: "MD_4", domain: "Ministry Depletion", text: "I feel a sense of accomplishment from my ministry.", positive: true },
@@ -279,7 +279,7 @@ export default function App() {
     }
     setLastResult({ ...row, id: crypto.randomUUID(), created_at: new Date().toISOString() });
     // Pull this person's prior history for the comparison screen (works even
-    // without a reviewer session because we only need this person's own rows —
+    // without a reviewer session because we only need this person's own rows;
     // add a public "insert-and-return-own-recent" RPC later if you want full
     // client-side history for staff too; for now we show just this submission).
     setView("confirm");
@@ -340,7 +340,7 @@ export default function App() {
             <button className="plb-btn plb-card plb-focus text-left rounded-lg p-6" onClick={goToCheckin}>
               <div className="plb-serif text-lg font-semibold mb-1">Check in</div>
               <p className="text-sm opacity-80 leading-relaxed">
-                A short, private reflection on how the last two weeks have felt — mood, sleep, stress, and energy. Takes about three minutes.
+                A short, private reflection on how the last two weeks have felt: mood, sleep, stress, and energy. Takes about three minutes.
               </p>
             </button>
             <p className="text-xs opacity-60 leading-relaxed mt-2">
@@ -422,7 +422,7 @@ export default function App() {
               </div>
             </div>
             <p className="text-xs opacity-60 leading-relaxed mb-4">
-              If anything here feels heavier than usual, it's worth a conversation — with a colleague, a supervisor, or a licensed professional. The Brain Performance Center coordinator will follow up if a pattern across check-ins suggests that would help.
+              If anything here feels heavier than usual, it's worth a conversation with a colleague, a supervisor, or a licensed professional. The Brain Performance Center coordinator will follow up if a pattern across check-ins suggests that would help.
             </p>
             <button className="plb-btn plb-focus rounded-full px-6 py-2 text-sm font-medium" style={{ background: "var(--ink)", color: "var(--paperHi)" }} onClick={resetCheckinForm}>
               Done
@@ -554,7 +554,7 @@ export default function App() {
                   <div className="plb-mono text-xs opacity-60">{new Date(selected.created_at).toLocaleString()}</div>
                   {selected.attention_passed === false && (
                     <div className="text-xs mt-1" style={{ color: "var(--coral)" }}>
-                      Failed the quality-control check — treat this entry's scores with caution.
+                      Failed the quality-control check. Treat this entry's scores with caution.
                     </div>
                   )}
                 </div>
@@ -571,7 +571,7 @@ export default function App() {
               <div className="space-y-2">
                 {ITEMS.map((item) => {
                   const val = selected.answers[item.id];
-                  const label = SCALE.find((s) => s.v === val)?.label ?? "—";
+                  const label = SCALE.find((s) => s.v === val)?.label ?? "N/A";
                   return (
                     <div key={item.id} className="flex items-start justify-between gap-4 text-sm pb-2" style={{ borderBottom: "1px solid var(--line)" }}>
                       <span className="opacity-80">{item.text}</span>
