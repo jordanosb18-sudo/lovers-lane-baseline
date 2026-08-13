@@ -32,9 +32,7 @@ const ITEMS = [
 ];
 
 // Interleaved to screen careless responses. Not scored into any domain.
-const ATTENTION_ITEMS = [
-  { id: "AC_1", text: "For quality purposes, please select \"Rarely\" for this item.", passValue: 2 },
-];
+const ATTENTION_ITEMS = [];
 
 const SCALE = [
   { v: 1, label: "Never" },
