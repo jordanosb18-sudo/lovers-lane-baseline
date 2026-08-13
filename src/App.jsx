@@ -146,7 +146,7 @@ function GlobalStyle() {
   return (
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
-      .plb-root { --ink:#3A2E1F; --paper:#EDE1C8; --paperHi:#F8F2E4; --sage:#7C8B4A; --gold:#B8862F; --coral:#A8542E; --blue:#8A6A2E; --line:#DDCBA0; --good:#7C8B4A; --warn:#C08A2E; --low:#A8542E;
+      .plb-root { --ink:#3A2E1F; --paper:#F0C978; --paperHi:#F6DA9C; --sage:#7C8B4A; --gold:#B8862F; --coral:#A8542E; --blue:#8A6A2E; --line:#D9A94A; --good:#7C8B4A; --warn:#C08A2E; --low:#A8542E;
         font-family:'Work Sans',sans-serif; color:var(--ink); background:var(--paper); min-height:100%; }
       .plb-serif { font-family:'Spectral',serif; }
       .plb-mono { font-family:'IBM Plex Mono',monospace; }
