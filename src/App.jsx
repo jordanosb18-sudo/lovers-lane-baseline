@@ -414,7 +414,7 @@ export default function App() {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="(555) 555-5555"
               />
-              <p className="text-xs opacity-60 mt-2">Visible only to the Brain Performance Center coordinator reviewing these entries.</p>
+              <p className="text-xs opacity-60 mt-2">Your answers, including your name, email, and phone number, are confidential and are only seen by the Brain Performance Center coordinator reviewing these entries.</p>
             </div>
 
             <p className="text-sm mb-4 opacity-80">Over the past two weeks, how often have you…</p>
