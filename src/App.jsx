@@ -350,9 +350,21 @@ export default function App() {
 
         {view === "landing" && (
           <div className="plb-fade">
+            <div className="mb-8">
+              <h2 className="plb-serif text-xl font-semibold mb-3">Brain Health & Ministry Well-Being Check-In</h2>
+              <p className="text-sm opacity-80 leading-relaxed mb-3">
+                Ministry asks a great deal of the brain, body, and nervous system. Over time, the ongoing demands of caring for others, making decisions, managing responsibilities, and remaining emotionally available can begin to affect recovery, focus, emotional regulation, and overall well-being.
+              </p>
+              <p className="text-sm opacity-80 leading-relaxed mb-3">
+                This brief check-in is designed to help identify how you have been functioning over the past two weeks. There are no right or wrong answers. Please respond based on your actual experience rather than how you think you should be feeling.
+              </p>
+              <p className="text-sm opacity-80 leading-relaxed">
+                Your responses will help us better understand patterns of strength, strain, and recovery across the ministry team and guide the development of practical brain health strategies and resources to support you in your decision-making, adaptability, execution, and resilience.
+              </p>
+            </div>
             <div className="grid gap-4">
             <button className="plb-btn plb-card plb-focus text-left rounded-lg p-6" onClick={goToCheckin}>
-              <div className="plb-serif text-lg font-semibold mb-1">Check in</div>
+              <div className="plb-serif text-lg font-semibold mb-1">Click here to start</div>
               <p className="text-sm opacity-80 leading-relaxed">
                 A short, private reflection on how the last two weeks have felt: mood, sleep, stress, and energy. Takes about three minutes.
               </p>
