@@ -191,7 +191,6 @@ function Vessel({ pct, size = 120, label, displayValue }) {
         </g>
       </svg>
       <div className="text-center">
-        <div className="plb-mono text-xs opacity-70">{label}</div>
         <div className="plb-serif text-lg font-semibold" style={{ color }}>{displayValue ?? pct}</div>
       </div>
     </div>
