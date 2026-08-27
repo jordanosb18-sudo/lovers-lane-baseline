@@ -14,17 +14,17 @@ const ITEMS = [
   // Domain 2: Emotional Regulation & Well-Being
   { id: "ER_1", domain: "Emotional Regulation & Well-Being", text: "I can name what I'm feeling in the moment instead of being controlled by it.", positive: true },
   { id: "ER_2", domain: "Emotional Regulation & Well-Being", text: "A single difficult conversation can throw off the rest of my day.", positive: false },
-  { id: "ER_6", domain: "Emotional Regulation & Well-Being", text: "I feel flat or low in a way that's hard to shake.", positive: false },
+  { id: "ER_6", domain: "Emotional Regulation & Well-Being", text: "I can feel flat and low in a way that's hard to shake.", positive: false },
   { id: "ER_7", domain: "Emotional Regulation & Well-Being", text: "I continue to experience enjoyment and meaning in my life outside of ministry.", positive: true },
   { id: "ER_10", domain: "Emotional Regulation & Well-Being", text: "I have people I can be honest with about how I'm really doing.", positive: true },
   // Domain 3: Focus & Cognitive Stamina
-  { id: "FC_1", domain: "Focus & Cognitive Stamina", text: "I can stay focused on one task without constantly switching.", positive: true },
+  { id: "FC_1", domain: "Focus & Cognitive Stamina", text: "I can stay on one task instead of getting distracted.", positive: true },
   { id: "FC_2", domain: "Focus & Cognitive Stamina", text: "By the end of the day, even small decisions feel exhausting.", positive: false },
   { id: "FC_3", domain: "Focus & Cognitive Stamina", text: "I can be fully present with a person in front of me.", positive: true },
   { id: "FC_6", domain: "Focus & Cognitive Stamina", text: "I put off decisions because I don't have the mental energy to make them.", positive: false },
-  { id: "FC_7", domain: "Focus & Cognitive Stamina", text: "I can settle into deep, focused work (study, sermon prep, planning).", positive: true },
+  { id: "FC_7", domain: "Focus & Cognitive Stamina", text: "I can settle into deep, focused work (study, sermon prep, planning) for a reasonable amount of time.", positive: true },
   // Domain 4: Ministry Depletion
-  { id: "MD_1", domain: "Ministry Depletion", text: "I feel emotionally drained by the ongoing demands and responsibilities of ministry.", positive: false },
+  { id: "MD_1", domain: "Ministry Depletion", text: "I can feel emotionally drained by the ongoing demands and responsibilities of ministry.", positive: false },
   { id: "MD_3", domain: "Ministry Depletion", text: "I notice myself becoming more emotionally detached from the people I serve.", positive: false },
   { id: "MD_4", domain: "Ministry Depletion", text: "I feel a sense of accomplishment from my ministry.", positive: true },
   { id: "MD_7", domain: "Ministry Depletion", text: "I can be present to others' suffering without being overwhelmed by it.", positive: true },
