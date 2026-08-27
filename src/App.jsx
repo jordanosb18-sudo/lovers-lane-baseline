@@ -78,26 +78,25 @@ function scoreCheckin(answers) {
   return { domainScores, composite, attentionPassed };
 }
 
-// These convert a strain score back into a 0-100 "wellness fill" purely for
-// the existing vessel/bar visuals (higher fill = doing better), so the
-// pictures still read intuitively even though the underlying number is a
-// strain score where higher = more strain.
-function domainFillPct(score) {
-  return Math.round(100 - ((score - 5) / 20) * 100);
+// Percentage of each score's own range (5-25 for a domain, 20-100 overall).
+// Higher percentage = higher score = more strain, so the visual fill now
+// moves in the same direction as the number next to it.
+function domainPct(score) {
+  return Math.round(((score - 5) / 20) * 100);
 }
-function compositeFillPct(score) {
-  return Math.round(100 - ((score - 20) / 80) * 100);
+function compositePct(score) {
+  return Math.round(((score - 20) / 80) * 100);
 }
 
 function levelColor(pct) {
-  if (pct >= 70) return "var(--good)";
+  if (pct >= 70) return "var(--low)";
   if (pct >= 40) return "var(--warn)";
-  return "var(--low)";
+  return "var(--good)";
 }
 function levelWord(pct) {
-  if (pct >= 70) return "Steady";
+  if (pct >= 70) return "Running low";
   if (pct >= 40) return "Uneven";
-  return "Running low";
+  return "Steady";
 }
 function normalizeName(name) {
   return (name || "").trim().toLowerCase();
@@ -140,14 +139,14 @@ function Sparkline({ points, width = 220, height = 48 }) {
     );
   }
   const step = width / (points.length - 1);
-  const coords = points.map((p, i) => [i * step, height - (compositeFillPct(p.composite) / 100) * height]);
+  const coords = points.map((p, i) => [i * step, height - (compositePct(p.composite) / 100) * height]);
   const path = coords.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`).join(" ");
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
       <polyline points={coords.map((c) => c.join(",")).join(" ")} fill="none" stroke="var(--line)" strokeWidth="2" opacity="0.6" />
       <path d={path} fill="none" stroke="var(--blue)" strokeWidth="2" />
       {coords.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="3" fill={levelColor(compositeFillPct(points[i].composite))} />
+        <circle key={i} cx={x} cy={y} r="3" fill={levelColor(compositePct(points[i].composite))} />
       ))}
     </svg>
   );
@@ -498,10 +497,10 @@ export default function App() {
               )}
               <div className="flex justify-center mb-6">
                 <Vessel
-                  pct={compositeFillPct(lastResult.composite)}
+                  pct={compositePct(lastResult.composite)}
                   displayValue={lastResult.composite}
                   size={140}
-                  label={levelWord(compositeFillPct(lastResult.composite))}
+                  label={levelWord(compositePct(lastResult.composite))}
                 />
               </div>
               <div className="text-left max-w-sm mx-auto">
@@ -509,7 +508,7 @@ export default function App() {
                   <ReservoirBar
                     key={d}
                     domain={d}
-                    pct={domainFillPct(lastResult.domain_scores[d])}
+                    pct={domainPct(lastResult.domain_scores[d])}
                     displayValue={lastResult.domain_scores[d]}
                   />
                 ))}
@@ -598,7 +597,7 @@ export default function App() {
                       </div>
                       <div className="flex items-center gap-3">
                         {prev && <Delta value={latest.composite - prev.composite} />}
-                        <div className="plb-serif text-lg font-semibold" style={{ color: levelColor(compositeFillPct(latest.composite)) }}>{latest.composite}</div>
+                        <div className="plb-serif text-lg font-semibold" style={{ color: levelColor(compositePct(latest.composite)) }}>{latest.composite}</div>
                       </div>
                     </button>
                   );
@@ -634,7 +633,7 @@ export default function App() {
                       </div>
                       <div className="flex items-center gap-3">
                         {prev && <Delta value={c.composite - prev.composite} />}
-                        <div className="plb-serif text-lg font-semibold" style={{ color: levelColor(compositeFillPct(c.composite)) }}>{c.composite}</div>
+                        <div className="plb-serif text-lg font-semibold" style={{ color: levelColor(compositePct(c.composite)) }}>{c.composite}</div>
                       </div>
                     </button>
                   );
@@ -665,10 +664,10 @@ export default function App() {
                   )}
                 </div>
                 <Vessel
-                  pct={compositeFillPct(selected.composite)}
+                  pct={compositePct(selected.composite)}
                   displayValue={selected.composite}
                   size={100}
-                  label={levelWord(compositeFillPct(selected.composite))}
+                  label={levelWord(compositePct(selected.composite))}
                 />
               </div>
               <div className="max-w-sm">
@@ -676,7 +675,7 @@ export default function App() {
                   <ReservoirBar
                     key={d}
                     domain={d}
-                    pct={domainFillPct(selected.domain_scores[d])}
+                    pct={domainPct(selected.domain_scores[d])}
                     displayValue={selected.domain_scores[d]}
                   />
                 ))}
