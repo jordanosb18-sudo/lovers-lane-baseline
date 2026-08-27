@@ -24,7 +24,7 @@ const ITEMS = [
   { id: "FC_6", domain: "Focus & Cognitive Stamina", text: "I put off decisions because I don't have the mental energy to make them.", positive: false },
   { id: "FC_7", domain: "Focus & Cognitive Stamina", text: "I can settle into deep, focused work (study, sermon prep, planning).", positive: true },
   // Domain 4: Ministry Depletion
-  { id: "MD_1", domain: "Ministry Depletion", text: "I feel emotionally drained by the logistical demands of ministry at Lovers Lane Church.", positive: false },
+  { id: "MD_1", domain: "Ministry Depletion", text: "I feel emotionally drained by the logistical demands of ministry.", positive: false },
   { id: "MD_3", domain: "Ministry Depletion", text: "I've become more detached toward the people I serve.", positive: false },
   { id: "MD_4", domain: "Ministry Depletion", text: "I feel a sense of accomplishment from my ministry.", positive: true },
   { id: "MD_7", domain: "Ministry Depletion", text: "I can be present to others' suffering without being overwhelmed by it.", positive: true },
@@ -209,6 +209,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [answers, setAnswers] = useState({});
   const [checkinOrder, setCheckinOrder] = useState([]);
   const [lastResult, setLastResult] = useState(null);
@@ -249,44 +251,61 @@ export default function App() {
   }, [session, loadCheckins]);
 
   const goToCheckin = () => {
+    setErrorMsg("");
     setCheckinOrder(shuffledOrder());
     setView("checkin");
   };
 
-  const allAnswered = ITEMS.every((i) => answers[i.id] !== undefined) &&
-    ATTENTION_ITEMS.every((a) => answers[a.id] !== undefined);
+  const missingItems = checkinOrder
+    .flatMap((g) => g.items)
+    .filter((item) => answers[item.id] === undefined);
+  const allAnswered = missingItems.length === 0 && ATTENTION_ITEMS.every((a) => answers[a.id] !== undefined);
 
   const submitCheckin = async () => {
-    if (!allAnswered || !name.trim()) return;
-    setSaving(true);
-    const { domainScores, composite, attentionPassed } = scoreCheckin(answers);
-    const row = {
-      name: name.trim(),
-      answers,
-      domain_scores: domainScores,
-      composite,
-      attention_passed: attentionPassed,
-      reviewed: false,
-      note: "",
-    };
-    const { error } = await supabase.from("checkins").insert(row);
-    setSaving(false);
-    if (error) {
-      setErrorMsg(error.message);
+    setErrorMsg("");
+    if (!name.trim()) {
+      setErrorMsg("Please enter your name before submitting.");
       return;
     }
-    setLastResult({ ...row, id: crypto.randomUUID(), created_at: new Date().toISOString() });
-    // Pull this person's prior history for the comparison screen (works even
-    // without a reviewer session because we only need this person's own rows;
-    // add a public "insert-and-return-own-recent" RPC later if you want full
-    // client-side history for staff too; for now we show just this submission).
-    setView("confirm");
+    if (!allAnswered) {
+      setErrorMsg(`Please answer all questions before submitting (${missingItems.length} left).`);
+      return;
+    }
+    setSaving(true);
+    try {
+      const { domainScores, composite, attentionPassed } = scoreCheckin(answers);
+      const row = {
+        name: name.trim(),
+        email: email.trim() || null,
+        phone: phone.trim() || null,
+        answers,
+        domain_scores: domainScores,
+        composite,
+        attention_passed: attentionPassed,
+        reviewed: false,
+        note: "",
+      };
+      const { error } = await supabase.from("checkins").insert(row);
+      if (error) {
+        setErrorMsg(error.message);
+        return;
+      }
+      setLastResult({ ...row, id: crypto.randomUUID(), created_at: new Date().toISOString() });
+      setView("confirm");
+    } catch (err) {
+      setErrorMsg(err?.message || "Something went wrong submitting your check-in. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const resetCheckinForm = () => {
     setName("");
+    setEmail("");
+    setPhone("");
     setAnswers({});
     setLastResult(null);
+    setErrorMsg("");
     setView("landing");
   };
 
@@ -324,9 +343,6 @@ export default function App() {
         <header className="mb-10 flex items-center gap-4">
           <img src="/logo.png" alt="Brain Performance Center" className="plb-logo w-24 h-24 flex-shrink-0" />
           <div>
-            <div className="plb-mono text-xs uppercase tracking-widest opacity-60">
-              Lovers Lane United Methodist Church
-            </div>
             <h1 className="plb-serif text-2xl font-semibold leading-tight">Staff Wellbeing Baseline</h1>
             <div className="plb-mono text-xs opacity-60 mt-0.5">with Brain Performance Center</div>
           </div>
@@ -353,11 +369,29 @@ export default function App() {
             <div className="plb-card rounded-lg p-5 mb-4">
               <label className="text-sm font-medium block mb-1">Your name</label>
               <input
-                className="plb-focus w-full rounded border px-3 py-2 bg-transparent"
+                className="plb-focus w-full rounded border px-3 py-2 bg-transparent mb-3"
                 style={{ borderColor: "var(--line)" }}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="First and last name"
+              />
+              <label className="text-sm font-medium block mb-1">Email <span className="opacity-50 font-normal">(optional)</span></label>
+              <input
+                type="email"
+                className="plb-focus w-full rounded border px-3 py-2 bg-transparent mb-3"
+                style={{ borderColor: "var(--line)" }}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+              />
+              <label className="text-sm font-medium block mb-1">Phone <span className="opacity-50 font-normal">(optional)</span></label>
+              <input
+                type="tel"
+                className="plb-focus w-full rounded border px-3 py-2 bg-transparent"
+                style={{ borderColor: "var(--line)" }}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="(555) 555-5555"
               />
               <p className="text-xs opacity-60 mt-2">Visible only to the Brain Performance Center coordinator reviewing these entries.</p>
             </div>
@@ -394,7 +428,7 @@ export default function App() {
             <div className="flex items-center justify-between mt-6">
               <button className="text-sm opacity-70 plb-focus" onClick={() => setView("landing")}>← Back</button>
               <button
-                disabled={!allAnswered || !name.trim() || saving}
+                disabled={saving}
                 className="plb-btn plb-focus rounded-full px-6 py-2 text-sm font-medium"
                 style={{ background: allAnswered && name.trim() ? "var(--sage)" : "var(--line)", color: "var(--paperHi)", opacity: saving ? 0.6 : 1 }}
                 onClick={submitCheckin}
@@ -402,6 +436,9 @@ export default function App() {
                 {saving ? "Saving…" : "Submit check-in"}
               </button>
             </div>
+            {errorMsg && (
+              <div className="mt-3 text-sm text-right" style={{ color: "var(--coral)" }}>{errorMsg}</div>
+            )}
           </div>
         )}
 
@@ -550,6 +587,12 @@ export default function App() {
                 <div>
                   <div className="plb-serif text-lg font-semibold">{selected.name}</div>
                   <div className="plb-mono text-xs opacity-60">{new Date(selected.created_at).toLocaleString()}</div>
+                  {(selected.email || selected.phone) && (
+                    <div className="text-xs opacity-70 mt-1">
+                      {selected.email && <div>{selected.email}</div>}
+                      {selected.phone && <div>{selected.phone}</div>}
+                    </div>
+                  )}
                   {selected.attention_passed === false && (
                     <div className="text-xs mt-1" style={{ color: "var(--coral)" }}>
                       Failed the quality-control check. Treat this entry's scores with caution.
@@ -605,7 +648,7 @@ export default function App() {
           </div>
         )}
 
-        {errorMsg && (
+        {errorMsg && view !== "checkin" && (
           <div className="mt-6 text-xs" style={{ color: "var(--coral)" }}>{errorMsg}</div>
         )}
       </div>
