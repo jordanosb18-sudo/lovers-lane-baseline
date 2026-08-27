@@ -15,7 +15,7 @@ const ITEMS = [
   { id: "ER_1", domain: "Emotional Regulation & Well-Being", text: "I can name what I'm feeling in the moment instead of being controlled by it.", positive: true },
   { id: "ER_2", domain: "Emotional Regulation & Well-Being", text: "A single difficult conversation can throw off the rest of my day.", positive: false },
   { id: "ER_6", domain: "Emotional Regulation & Well-Being", text: "I feel flat or low in a way that's hard to shake.", positive: false },
-  { id: "ER_7", domain: "Emotional Regulation & Well-Being", text: "I find enjoyment and meaning in all areas of my life.", positive: true },
+  { id: "ER_7", domain: "Emotional Regulation & Well-Being", text: "I continue to experience enjoyment and meaning in my life outside of ministry.", positive: true },
   { id: "ER_10", domain: "Emotional Regulation & Well-Being", text: "I have people I can be honest with about how I'm really doing.", positive: true },
   // Domain 3: Focus & Cognitive Stamina
   { id: "FC_1", domain: "Focus & Cognitive Stamina", text: "I can stay focused on one task without constantly switching.", positive: true },
@@ -24,8 +24,8 @@ const ITEMS = [
   { id: "FC_6", domain: "Focus & Cognitive Stamina", text: "I put off decisions because I don't have the mental energy to make them.", positive: false },
   { id: "FC_7", domain: "Focus & Cognitive Stamina", text: "I can settle into deep, focused work (study, sermon prep, planning).", positive: true },
   // Domain 4: Ministry Depletion
-  { id: "MD_1", domain: "Ministry Depletion", text: "I feel emotionally drained by the logistical demands of ministry.", positive: false },
-  { id: "MD_3", domain: "Ministry Depletion", text: "I've become more detached toward the people I serve.", positive: false },
+  { id: "MD_1", domain: "Ministry Depletion", text: "I feel emotionally drained by the ongoing demands and responsibilities of ministry.", positive: false },
+  { id: "MD_3", domain: "Ministry Depletion", text: "I notice myself becoming more emotionally detached from the people I serve.", positive: false },
   { id: "MD_4", domain: "Ministry Depletion", text: "I feel a sense of accomplishment from my ministry.", positive: true },
   { id: "MD_7", domain: "Ministry Depletion", text: "I can be present to others' suffering without being overwhelmed by it.", positive: true },
   { id: "MD_8", domain: "Ministry Depletion", text: "I'm running on obligation more than genuine calling right now.", positive: false },
@@ -62,19 +62,31 @@ function shuffledOrder() {
   return domainGroups;
 }
 
+// Scoring follows Leigh Richardson's spec: raw 1-5 responses, with items that
+// indicate strength/recovery ("positive" items) reverse-scored so a HIGHER
+// total consistently means greater strain/depletion. Domain totals run 5-25
+// (5 items each), overall runs 20-100 (4 domains).
 function scoreCheckin(answers) {
   const domainScores = {};
   DOMAINS.forEach((d) => {
     const items = ITEMS.filter((i) => i.domain === d);
-    const vals = items.map((i) => (i.positive ? answers[i.id] : 6 - answers[i.id]));
-    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
-    domainScores[d] = Math.round(((avg - 1) / 4) * 100);
+    const vals = items.map((i) => (i.positive ? 6 - answers[i.id] : answers[i.id]));
+    domainScores[d] = vals.reduce((a, b) => a + b, 0);
   });
-  const composite = Math.round(
-    Object.values(domainScores).reduce((a, b) => a + b, 0) / DOMAINS.length
-  );
+  const composite = Object.values(domainScores).reduce((a, b) => a + b, 0);
   const attentionPassed = ATTENTION_ITEMS.every((a) => answers[a.id] === a.passValue);
   return { domainScores, composite, attentionPassed };
+}
+
+// These convert a strain score back into a 0-100 "wellness fill" purely for
+// the existing vessel/bar visuals (higher fill = doing better), so the
+// pictures still read intuitively even though the underlying number is a
+// strain score where higher = more strain.
+function domainFillPct(score) {
+  return Math.round(100 - ((score - 5) / 20) * 100);
+}
+function compositeFillPct(score) {
+  return Math.round(100 - ((score - 20) / 80) * 100);
 }
 
 function levelColor(pct) {
@@ -111,8 +123,9 @@ function personHistory(checkins, name, excludeId) {
 function Delta({ value }) {
   if (value === 0 || value === undefined) return <span className="plb-mono text-xs opacity-50">no change</span>;
   const up = value > 0;
+  // Higher score = more strain now, so an increase is the concerning direction.
   return (
-    <span className="plb-mono text-xs" style={{ color: up ? "var(--sage)" : "var(--coral)" }}>
+    <span className="plb-mono text-xs" style={{ color: up ? "var(--coral)" : "var(--sage)" }}>
       {up ? "▲" : "▼"} {Math.abs(value)}
     </span>
   );
@@ -127,14 +140,14 @@ function Sparkline({ points, width = 220, height = 48 }) {
     );
   }
   const step = width / (points.length - 1);
-  const coords = points.map((p, i) => [i * step, height - (p.composite / 100) * height]);
+  const coords = points.map((p, i) => [i * step, height - (compositeFillPct(p.composite) / 100) * height]);
   const path = coords.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`).join(" ");
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
       <polyline points={coords.map((c) => c.join(",")).join(" ")} fill="none" stroke="var(--line)" strokeWidth="2" opacity="0.6" />
       <path d={path} fill="none" stroke="var(--blue)" strokeWidth="2" />
       {coords.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="3" fill={levelColor(points[i].composite)} />
+        <circle key={i} cx={x} cy={y} r="3" fill={levelColor(compositeFillPct(points[i].composite))} />
       ))}
     </svg>
   );
@@ -162,7 +175,7 @@ function GlobalStyle() {
   );
 }
 
-function Vessel({ pct, size = 120, label }) {
+function Vessel({ pct, size = 120, label, displayValue }) {
   const fillHeight = (pct / 100) * (size - 16);
   const color = levelColor(pct);
   return (
@@ -180,19 +193,19 @@ function Vessel({ pct, size = 120, label }) {
       </svg>
       <div className="text-center">
         <div className="plb-mono text-xs opacity-70">{label}</div>
-        <div className="plb-serif text-lg font-semibold" style={{ color }}>{pct}</div>
+        <div className="plb-serif text-lg font-semibold" style={{ color }}>{displayValue ?? pct}</div>
       </div>
     </div>
   );
 }
 
-function ReservoirBar({ domain, pct }) {
+function ReservoirBar({ domain, pct, displayValue }) {
   const color = levelColor(pct);
   return (
     <div className="mb-3">
       <div className="flex justify-between items-baseline mb-1">
         <span className="text-sm">{domain}</span>
-        <span className="plb-mono text-xs opacity-70">{pct}</span>
+        <span className="plb-mono text-xs opacity-70">{displayValue ?? pct}</span>
       </div>
       <div className="w-full h-2 rounded-full" style={{ background: "var(--line)" }}>
         <div className="h-2 rounded-full plb-wave" style={{ width: `${pct}%`, background: color }} />
@@ -396,7 +409,7 @@ export default function App() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="First and last name"
               />
-              <label className="text-sm font-medium block mb-1">Email <span className="opacity-50 font-normal">(optional)</span></label>
+              <label className="text-sm font-medium block mb-1">Email</label>
               <input
                 type="email"
                 className="plb-focus w-full rounded border px-3 py-2 bg-transparent mb-3"
@@ -405,7 +418,7 @@ export default function App() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
               />
-              <label className="text-sm font-medium block mb-1">Phone <span className="opacity-50 font-normal">(optional)</span></label>
+              <label className="text-sm font-medium block mb-1">Phone</label>
               <input
                 type="tel"
                 className="plb-focus w-full rounded border px-3 py-2 bg-transparent"
@@ -417,11 +430,11 @@ export default function App() {
               <p className="text-xs opacity-60 mt-2">Your answers, including your name, email, and phone number, are confidential and are only seen by the Brain Performance Center coordinator reviewing these entries.</p>
             </div>
 
-            <p className="text-sm mb-4 opacity-80">Over the past two weeks, how often have you…</p>
+            <p className="text-lg font-medium mb-6">Over the past two weeks, how often have you…</p>
 
             {checkinOrder.map((group) => (
-              <div key={group.domain} className="mb-6">
-                <div className="plb-serif text-sm font-semibold mb-2 opacity-80">{group.domain}</div>
+              <div key={group.domain} className="mb-10">
+                <div className="plb-serif text-xl font-semibold mb-3 mt-2">{group.domain}</div>
                 {group.items.map((item) => (
                   <div key={item.id} className="plb-card rounded-lg p-4 mb-3">
                     <div className="text-sm mb-3">{item.text}</div>
@@ -469,13 +482,26 @@ export default function App() {
               <div className="plb-serif text-lg font-semibold mb-1">Thank you, {lastResult.name.split(" ")[0]}</div>
               <p className="text-sm opacity-70 mb-6">Here's a snapshot of today. This is a personal reflection, not a score to measure yourself against.</p>
               <div className="flex justify-center mb-6">
-                <Vessel pct={lastResult.composite} size={140} label={levelWord(lastResult.composite)} />
+                <Vessel
+                  pct={compositeFillPct(lastResult.composite)}
+                  displayValue={lastResult.composite}
+                  size={140}
+                  label={levelWord(compositeFillPct(lastResult.composite))}
+                />
               </div>
               <div className="text-left max-w-sm mx-auto">
                 {DOMAINS.map((d) => (
-                  <ReservoirBar key={d} domain={d} pct={lastResult.domain_scores[d]} />
+                  <ReservoirBar
+                    key={d}
+                    domain={d}
+                    pct={domainFillPct(lastResult.domain_scores[d])}
+                    displayValue={lastResult.domain_scores[d]}
+                  />
                 ))}
               </div>
+              <p className="text-xs opacity-60 leading-relaxed mt-6 text-left max-w-sm mx-auto">
+                Each area is scored 5–25, and your overall number runs 20–100. Higher numbers reflect more strain in that area over the past two weeks; lower numbers reflect steadier functioning. This isn't a diagnosis or a pass/fail score, it's simply a baseline so you and the Brain Performance Center coordinator can watch for patterns over time.
+              </p>
             </div>
             <p className="text-xs opacity-60 leading-relaxed mb-4">
               If anything here feels heavier than usual, it's worth a conversation with a colleague, a supervisor, or a licensed professional. The Brain Performance Center coordinator will follow up if a pattern across check-ins suggests that would help.
@@ -526,10 +552,13 @@ export default function App() {
           const groups = groupByPerson(checkins);
           return (
             <div className="plb-fade">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-2">
                 <div className="plb-serif text-lg font-semibold">Staff ({groups.length})</div>
                 <button className="text-xs opacity-60 plb-focus" onClick={handleLogout}>Sign out</button>
               </div>
+              <p className="text-xs opacity-60 mb-4 leading-relaxed">
+                Scores run 20–100 overall (5–25 per domain). Higher numbers indicate greater strain, not a diagnosis, use these to spot patterns and track change over time rather than as a clinical threshold.
+              </p>
               {loading && <div className="text-sm opacity-60">Loading…</div>}
               {!loading && groups.length === 0 && (
                 <div className="plb-card rounded-lg p-6 text-sm opacity-70">No check-ins submitted yet.</div>
@@ -554,7 +583,7 @@ export default function App() {
                       </div>
                       <div className="flex items-center gap-3">
                         {prev && <Delta value={latest.composite - prev.composite} />}
-                        <div className="plb-serif text-lg font-semibold" style={{ color: levelColor(latest.composite) }}>{latest.composite}</div>
+                        <div className="plb-serif text-lg font-semibold" style={{ color: levelColor(compositeFillPct(latest.composite)) }}>{latest.composite}</div>
                       </div>
                     </button>
                   );
@@ -590,7 +619,7 @@ export default function App() {
                       </div>
                       <div className="flex items-center gap-3">
                         {prev && <Delta value={c.composite - prev.composite} />}
-                        <div className="plb-serif text-lg font-semibold" style={{ color: levelColor(c.composite) }}>{c.composite}</div>
+                        <div className="plb-serif text-lg font-semibold" style={{ color: levelColor(compositeFillPct(c.composite)) }}>{c.composite}</div>
                       </div>
                     </button>
                   );
@@ -620,11 +649,21 @@ export default function App() {
                     </div>
                   )}
                 </div>
-                <Vessel pct={selected.composite} size={100} label={levelWord(selected.composite)} />
+                <Vessel
+                  pct={compositeFillPct(selected.composite)}
+                  displayValue={selected.composite}
+                  size={100}
+                  label={levelWord(compositeFillPct(selected.composite))}
+                />
               </div>
               <div className="max-w-sm">
                 {DOMAINS.map((d) => (
-                  <ReservoirBar key={d} domain={d} pct={selected.domain_scores[d]} />
+                  <ReservoirBar
+                    key={d}
+                    domain={d}
+                    pct={domainFillPct(selected.domain_scores[d])}
+                    displayValue={selected.domain_scores[d]}
+                  />
                 ))}
               </div>
             </div>
