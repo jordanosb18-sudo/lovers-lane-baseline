@@ -343,8 +343,17 @@ export default function App() {
         <header className="mb-10 flex items-center gap-4">
           <img src="/logo.png" alt="Brain Performance Center" className="plb-logo w-24 h-24 flex-shrink-0" />
           <div>
-            <h1 className="plb-serif text-2xl font-semibold leading-tight">Staff Wellbeing Baseline</h1>
-            <div className="plb-mono text-xs opacity-60 mt-0.5">with Brain Performance Center</div>
+            <h1 className="plb-serif text-2xl font-semibold leading-tight">Brain Performance Center</h1>
+            <a
+              href="https://thebrainperformancecenter.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="plb-mono text-xs opacity-70 block mt-0.5 hover:opacity-100"
+              style={{ color: "var(--gold)" }}
+            >
+              thebrainperformancecenter.com
+            </a>
+            <div className="plb-mono text-xs opacity-60 mt-0.5">214-329-9017</div>
           </div>
         </header>
 
