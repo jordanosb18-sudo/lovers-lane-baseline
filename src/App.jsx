@@ -305,6 +305,18 @@ export default function App() {
       }
       setLastResult({ ...row, id: crypto.randomUUID(), created_at: new Date().toISOString() });
       setView("confirm");
+
+      if (row.email) {
+        supabase.functions
+          .invoke("send-checkin-results", {
+            body: { name: row.name, email: row.email, composite: row.composite, domainScores: row.domain_scores },
+          })
+          .catch(() => {
+            // Silent: the check-in itself already succeeded and saved. Email
+            // is a nice-to-have on top, not something that should ever block
+            // or fail the submission the person already completed.
+          });
+      }
     } catch (err) {
       setErrorMsg(err?.message || "Something went wrong submitting your check-in. Please try again.");
     } finally {
@@ -437,7 +449,7 @@ export default function App() {
                 <div className="plb-serif text-xl font-semibold mb-3 mt-2">{group.domain}</div>
                 {group.items.map((item) => (
                   <div key={item.id} className="plb-card rounded-lg p-4 mb-3">
-                    <div className="text-sm mb-3">{item.text}</div>
+                    <div className="text-base mb-3">{item.text}</div>
                     <div className="flex flex-wrap gap-2">
                       {SCALE.map((s) => (
                         <button
@@ -467,7 +479,7 @@ export default function App() {
                 style={{ background: allAnswered && name.trim() ? "var(--sage)" : "var(--line)", color: "var(--paperHi)", opacity: saving ? 0.6 : 1 }}
                 onClick={submitCheckin}
               >
-                {saving ? "Saving…" : "Submit check-in"}
+                {saving ? "Saving…" : "Submit"}
               </button>
             </div>
             {errorMsg && (
@@ -481,6 +493,9 @@ export default function App() {
             <div className="plb-card rounded-lg p-6 mb-4 text-center">
               <div className="plb-serif text-lg font-semibold mb-1">Thank you, {lastResult.name.split(" ")[0]}</div>
               <p className="text-sm opacity-70 mb-6">Here's a snapshot of today. This is a personal reflection, not a score to measure yourself against.</p>
+              {lastResult.email && (
+                <p className="text-xs opacity-60 mb-4">A copy of these results has been sent to {lastResult.email}.</p>
+              )}
               <div className="flex justify-center mb-6">
                 <Vessel
                   pct={compositeFillPct(lastResult.composite)}
