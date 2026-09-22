@@ -33,11 +33,10 @@ const ITEMS = [
 
 // Unscored. Worded in the opposite (positive) direction to help catch
 // straight-lining or internally inconsistent answers; never counted into a
-// domain or the overall total.
-const VALIDITY_ITEMS = [
-  { id: "V1", domain: "Nervous System Load & Recovery", text: "I felt well-rested and able to recover most days." },
-  { id: "V2", domain: "Ministry Depletion", text: "I felt genuinely energized and connected in my ministry." },
-];
+// domain or the overall total. (Removed from the check-in itself, per
+// request; left empty here rather than deleted so it's a one-line change to
+// bring back if wanted later.)
+const VALIDITY_ITEMS = [];
 
 // Interleaved to screen careless responses. Not scored into any domain.
 const ATTENTION_ITEMS = [];
@@ -518,32 +517,6 @@ export default function App() {
               </div>
             ))}
 
-            <div className="mb-10">
-              <div className="plb-serif text-xl font-semibold mb-3 mt-2">A couple more</div>
-              {VALIDITY_ITEMS.map((item) => (
-                <div key={item.id} className="plb-card rounded-lg p-4 mb-3">
-                  <div className="text-base mb-3">{item.text}</div>
-                  <div className="flex flex-wrap gap-2">
-                    {SCALE.map((s) => (
-                      <button
-                        key={s.v}
-                        className="plb-btn plb-focus text-xs px-3 py-1.5 rounded-full border text-center"
-                        style={{
-                          borderColor: "var(--line)",
-                          background: answers[item.id] === s.v ? "var(--ink)" : "transparent",
-                          color: answers[item.id] === s.v ? "var(--paperHi)" : "var(--ink)",
-                        }}
-                        onClick={() => setAnswers((a) => ({ ...a, [item.id]: s.v }))}
-                      >
-                        <div>{s.label}</div>
-                        <div className="opacity-60" style={{ fontSize: "10px" }}>{s.sub}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
             <div className="flex items-center justify-between mt-6">
               <button className="text-sm opacity-70 plb-focus" onClick={() => setView("landing")}>← Back</button>
               <button
@@ -776,7 +749,7 @@ export default function App() {
                   />
                 ))}
               </div>
-              {selected.validity_answers && (
+              {VALIDITY_ITEMS.length > 0 && selected.validity_answers && (
                 <div className="mt-4 pt-4 text-xs opacity-70" style={{ borderTop: "1px solid var(--line)" }}>
                   <div className="font-medium mb-1">Validity checks (unscored)</div>
                   {VALIDITY_ITEMS.map((v) => (
