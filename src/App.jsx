@@ -5,41 +5,49 @@ import { supabase } from "./supabaseClient";
    Design tokens
 --------------------------------------------------------- */
 const ITEMS = [
-  // Domain 1: Nervous System Load & Recovery
-  { id: "NS_1", domain: "Nervous System Load & Recovery", text: 'I feel wound-up or "on" even when nothing urgent is happening.', positive: false },
-  { id: "NS_2", domain: "Nervous System Load & Recovery", text: "I can physically calm myself (breath, heart rate) after a stressful encounter.", positive: true },
-  { id: "NS_5", domain: "Nervous System Load & Recovery", text: "I wake in the night with ministry concerns on my mind.", positive: false },
-  { id: "NS_7", domain: "Nervous System Load & Recovery", text: "Stress builds up in me over the week without ever fully clearing.", positive: false },
-  { id: "NS_10", domain: "Nervous System Load & Recovery", text: "I recover between demands rather than running on fumes.", positive: true },
-  // Domain 2: Emotional Regulation & Well-Being
-  { id: "ER_1", domain: "Emotional Regulation & Well-Being", text: "I can name what I'm feeling in the moment instead of being controlled by it.", positive: true },
-  { id: "ER_2", domain: "Emotional Regulation & Well-Being", text: "A single difficult conversation can throw off the rest of my day.", positive: false },
-  { id: "ER_6", domain: "Emotional Regulation & Well-Being", text: "I can feel flat and low in a way that's hard to shake.", positive: false },
-  { id: "ER_7", domain: "Emotional Regulation & Well-Being", text: "I continue to experience enjoyment and meaning in my life outside of ministry.", positive: true },
-  { id: "ER_10", domain: "Emotional Regulation & Well-Being", text: "I have people I can be honest with about how I'm really doing.", positive: true },
-  // Domain 3: Focus & Cognitive Stamina
-  { id: "FC_1", domain: "Focus & Cognitive Stamina", text: "I can stay on one task instead of getting distracted.", positive: true },
-  { id: "FC_2", domain: "Focus & Cognitive Stamina", text: "By the end of the day, even small decisions feel exhausting.", positive: false },
-  { id: "FC_3", domain: "Focus & Cognitive Stamina", text: "I can be fully present with a person in front of me.", positive: true },
-  { id: "FC_6", domain: "Focus & Cognitive Stamina", text: "I put off decisions because I don't have the mental energy to make them.", positive: false },
-  { id: "FC_7", domain: "Focus & Cognitive Stamina", text: "I can settle into deep, focused work (study, sermon prep, planning) for a reasonable amount of time.", positive: true },
-  // Domain 4: Ministry Depletion
-  { id: "MD_1", domain: "Ministry Depletion", text: "I can feel emotionally drained by the ongoing demands and responsibilities of ministry.", positive: false },
-  { id: "MD_3", domain: "Ministry Depletion", text: "I notice myself becoming more emotionally detached from the people I serve.", positive: false },
-  { id: "MD_4", domain: "Ministry Depletion", text: "I feel a sense of accomplishment from my ministry.", positive: true },
-  { id: "MD_7", domain: "Ministry Depletion", text: "I can be present to others' suffering without being overwhelmed by it.", positive: true },
-  { id: "MD_8", domain: "Ministry Depletion", text: "I'm running on obligation more than genuine calling right now.", positive: false },
+  // Section 1: Nervous System Load & Recovery -> Decision-Making
+  { id: "NS_1", domain: "Nervous System Load & Recovery", text: "After a stressful encounter, I could not physically calm myself (settle my breathing or heart rate)." },
+  { id: "NS_2", domain: "Nervous System Load & Recovery", text: "I ran on fumes, without recovering between demands." },
+  { id: "NS_3", domain: "Nervous System Load & Recovery", text: "Stress built up in me without ever fully clearing." },
+  { id: "NS_4", domain: "Nervous System Load & Recovery", text: 'I felt wound-up or "on" even when nothing urgent was happening.' },
+  { id: "NS_5", domain: "Nervous System Load & Recovery", text: "I woke in the night with ministry concerns on my mind.", critical: true },
+  // Section 2: Emotional Regulation & Well-Being -> Adaptability
+  { id: "ER_1", domain: "Emotional Regulation & Well-Being", text: "I felt flat or low in a way that was hard to shake.", critical: true },
+  { id: "ER_2", domain: "Emotional Regulation & Well-Being", text: "A single difficult conversation threw off the rest of my day." },
+  { id: "ER_3", domain: "Emotional Regulation & Well-Being", text: "I was controlled by my emotions instead of being able to name what I was feeling." },
+  { id: "ER_4", domain: "Emotional Regulation & Well-Being", text: "I struggled to find enjoyment or meaning in my life outside of ministry." },
+  { id: "ER_5", domain: "Emotional Regulation & Well-Being", text: "I had no one I could be honest with about how I was really doing." },
+  // Section 3: Focus & Cognitive Stamina -> Execution
+  { id: "FC_1", domain: "Focus & Cognitive Stamina", text: "By the end of the day, even small decisions felt exhausting." },
+  { id: "FC_2", domain: "Focus & Cognitive Stamina", text: "I put off decisions because I didn't have the mental energy to make them." },
+  { id: "FC_3", domain: "Focus & Cognitive Stamina", text: "I got distracted and couldn't stay on one task." },
+  { id: "FC_4", domain: "Focus & Cognitive Stamina", text: "I couldn't settle into deep, focused work (study, sermon prep, planning) for a reasonable time." },
+  { id: "FC_5", domain: "Focus & Cognitive Stamina", text: "I found it hard to be fully present with the person in front of me." },
+  // Section 4: Ministry Depletion -> Resilience
+  { id: "MD_1", domain: "Ministry Depletion", text: "I felt overwhelmed by others' suffering rather than able to stay present to it." },
+  { id: "MD_2", domain: "Ministry Depletion", text: "I felt little sense of accomplishment from my ministry." },
+  { id: "MD_3", domain: "Ministry Depletion", text: "I noticed myself becoming more emotionally detached from the people I serve.", critical: true },
+  { id: "MD_4", domain: "Ministry Depletion", text: "I was running on obligation more than genuine calling.", critical: true },
+  { id: "MD_5", domain: "Ministry Depletion", text: "I felt emotionally drained by the ongoing demands and responsibilities of ministry." },
+];
+
+// Unscored. Worded in the opposite (positive) direction to help catch
+// straight-lining or internally inconsistent answers; never counted into a
+// domain or the overall total.
+const VALIDITY_ITEMS = [
+  { id: "V1", domain: "Nervous System Load & Recovery", text: "I felt well-rested and able to recover most days." },
+  { id: "V2", domain: "Ministry Depletion", text: "I felt genuinely energized and connected in my ministry." },
 ];
 
 // Interleaved to screen careless responses. Not scored into any domain.
 const ATTENTION_ITEMS = [];
 
 const SCALE = [
-  { v: 1, label: "Never" },
-  { v: 2, label: "Rarely" },
-  { v: 3, label: "Sometimes" },
-  { v: 4, label: "Often" },
-  { v: 5, label: "Almost always" },
+  { v: 0, label: "Not at all", sub: "0 days" },
+  { v: 1, label: "Rarely", sub: "1–2 days" },
+  { v: 2, label: "Some days", sub: "3–5 days" },
+  { v: 3, label: "Many days", sub: "6–9 days" },
+  { v: 4, label: "Nearly every day", sub: "10–14 days" },
 ];
 
 const DOMAINS = [...new Set(ITEMS.map((i) => i.domain))];
@@ -62,30 +70,57 @@ function shuffledOrder() {
   return domainGroups;
 }
 
-// Scoring follows Leigh Richardson's spec: raw 1-5 responses, with items that
-// indicate strength/recovery ("positive" items) reverse-scored so a HIGHER
-// total consistently means greater strain/depletion. Domain totals run 5-25
-// (5 items each), overall runs 20-100 (4 domains).
+// v2 scoring: every scored item is worded in the strain direction, so it's a
+// simple sum, no reverse-scoring at all. Domain totals run 0-20 (5 items x
+// 0-4), overall runs 0-80 (4 domains). Validity items (V1/V2) are stored but
+// never counted into any total. A critical-item flag fires if any flagged
+// item is answered 3 or 4, regardless of section totals.
 function scoreCheckin(answers) {
   const domainScores = {};
   DOMAINS.forEach((d) => {
     const items = ITEMS.filter((i) => i.domain === d);
-    const vals = items.map((i) => (i.positive ? 6 - answers[i.id] : answers[i.id]));
-    domainScores[d] = vals.reduce((a, b) => a + b, 0);
+    domainScores[d] = items.reduce((sum, i) => sum + answers[i.id], 0);
   });
   const composite = Object.values(domainScores).reduce((a, b) => a + b, 0);
   const attentionPassed = ATTENTION_ITEMS.every((a) => answers[a.id] === a.passValue);
-  return { domainScores, composite, attentionPassed };
+  const criticalFlag = ITEMS.some((i) => i.critical && answers[i.id] >= 3);
+
+  // Inconsistency check: high strain in a section alongside a high rating on
+  // that section's matching positive validity item is worth a second look.
+  const inconsistencies = [];
+  VALIDITY_ITEMS.forEach((v) => {
+    const sectionScore = domainScores[v.domain];
+    if (sectionScore >= 10 && answers[v.id] >= 3) {
+      inconsistencies.push(v.domain);
+    }
+  });
+
+  return { domainScores, composite, attentionPassed, criticalFlag, inconsistencies };
 }
 
-// Percentage of each score's own range (5-25 for a domain, 20-100 overall).
-// Higher percentage = higher score = more strain, so the visual fill now
-// moves in the same direction as the number next to it.
+// Interpretation bands straight from the instrument (not a diagnosis, a
+// baseline to spot patterns). Domain max is 20, overall max is 80.
+function domainBand(score) {
+  if (score <= 4) return { word: "Steady", color: "var(--good)" };
+  if (score <= 9) return { word: "Watch", color: "var(--warn)" };
+  if (score <= 15) return { word: "Elevated", color: "var(--low)" };
+  return { word: "High", color: "var(--low)" };
+}
+function overallBand(score) {
+  if (score <= 19) return { word: "Steady", color: "var(--good)" };
+  if (score <= 39) return { word: "Watch", color: "var(--warn)" };
+  if (score <= 63) return { word: "Elevated", color: "var(--low)" };
+  return { word: "High", color: "var(--low)" };
+}
+
+// Percentage of each score's own range (0-20 for a domain, 0-80 overall).
+// Higher percentage = higher score = more strain, so the visual fill moves
+// in the same direction as the number next to it.
 function domainPct(score) {
-  return Math.round(((score - 5) / 20) * 100);
+  return Math.round((score / 20) * 100);
 }
 function compositePct(score) {
-  return Math.round(((score - 20) / 80) * 100);
+  return Math.round((score / 80) * 100);
 }
 
 function levelColor(pct) {
@@ -174,9 +209,9 @@ function GlobalStyle() {
   );
 }
 
-function Vessel({ pct, size = 120, label, displayValue }) {
+function Vessel({ pct, size = 120, label, displayValue, color: colorOverride }) {
   const fillHeight = (pct / 100) * (size - 16);
-  const color = levelColor(pct);
+  const color = colorOverride || levelColor(pct);
   return (
     <div className="flex flex-col items-center gap-2">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
@@ -197,8 +232,8 @@ function Vessel({ pct, size = 120, label, displayValue }) {
   );
 }
 
-function ReservoirBar({ domain, pct, displayValue }) {
-  const color = levelColor(pct);
+function ReservoirBar({ domain, pct, displayValue, color: colorOverride }) {
+  const color = colorOverride || levelColor(pct);
   return (
     <div className="mb-3">
       <div className="flex justify-between items-baseline mb-1">
@@ -270,7 +305,11 @@ export default function App() {
   const missingItems = checkinOrder
     .flatMap((g) => g.items)
     .filter((item) => answers[item.id] === undefined);
-  const allAnswered = missingItems.length === 0 && ATTENTION_ITEMS.every((a) => answers[a.id] !== undefined);
+  const missingValidity = VALIDITY_ITEMS.filter((v) => answers[v.id] === undefined);
+  const allAnswered =
+    missingItems.length === 0 &&
+    missingValidity.length === 0 &&
+    ATTENTION_ITEMS.every((a) => answers[a.id] !== undefined);
 
   const submitCheckin = async () => {
     setErrorMsg("");
@@ -279,12 +318,14 @@ export default function App() {
       return;
     }
     if (!allAnswered) {
-      setErrorMsg(`Please answer all questions before submitting (${missingItems.length} left).`);
+      setErrorMsg(`Please answer all questions before submitting (${missingItems.length + missingValidity.length} left).`);
       return;
     }
     setSaving(true);
     try {
-      const { domainScores, composite, attentionPassed } = scoreCheckin(answers);
+      const { domainScores, composite, attentionPassed, criticalFlag, inconsistencies } = scoreCheckin(answers);
+      const validityAnswers = {};
+      VALIDITY_ITEMS.forEach((v) => { validityAnswers[v.id] = answers[v.id]; });
       const row = {
         name: name.trim(),
         email: email.trim() || null,
@@ -293,6 +334,9 @@ export default function App() {
         domain_scores: domainScores,
         composite,
         attention_passed: attentionPassed,
+        critical_flag: criticalFlag,
+        inconsistencies,
+        validity_answers: validityAnswers,
         reviewed: false,
         note: "",
       };
@@ -440,7 +484,8 @@ export default function App() {
               <p className="text-xs opacity-60 mt-2">Your answers, including your name, email, and phone number, are confidential.</p>
             </div>
 
-            <p className="text-lg font-medium mb-6">Over the past two weeks, how often have you…</p>
+            <p className="text-lg font-medium mb-1">Over the past two weeks, how many days has each been true for you?</p>
+            <p className="text-sm opacity-70 mb-6">There are no right or wrong answers. Answer based on how things have genuinely been, not how you think they should be.</p>
 
             {checkinOrder.map((group) => (
               <div key={group.domain} className="mb-10">
@@ -452,7 +497,7 @@ export default function App() {
                       {SCALE.map((s) => (
                         <button
                           key={s.v}
-                          className="plb-btn plb-focus text-xs px-3 py-1.5 rounded-full border"
+                          className="plb-btn plb-focus text-xs px-3 py-1.5 rounded-full border text-center"
                           style={{
                             borderColor: "var(--line)",
                             background: answers[item.id] === s.v ? "var(--ink)" : "transparent",
@@ -460,7 +505,8 @@ export default function App() {
                           }}
                           onClick={() => setAnswers((a) => ({ ...a, [item.id]: s.v }))}
                         >
-                          {s.label}
+                          <div>{s.label}</div>
+                          <div className="opacity-60" style={{ fontSize: "10px" }}>{s.sub}</div>
                         </button>
                       ))}
                     </div>
@@ -468,6 +514,32 @@ export default function App() {
                 ))}
               </div>
             ))}
+
+            <div className="mb-10">
+              <div className="plb-serif text-xl font-semibold mb-3 mt-2">A couple more</div>
+              {VALIDITY_ITEMS.map((item) => (
+                <div key={item.id} className="plb-card rounded-lg p-4 mb-3">
+                  <div className="text-base mb-3">{item.text}</div>
+                  <div className="flex flex-wrap gap-2">
+                    {SCALE.map((s) => (
+                      <button
+                        key={s.v}
+                        className="plb-btn plb-focus text-xs px-3 py-1.5 rounded-full border text-center"
+                        style={{
+                          borderColor: "var(--line)",
+                          background: answers[item.id] === s.v ? "var(--ink)" : "transparent",
+                          color: answers[item.id] === s.v ? "var(--paperHi)" : "var(--ink)",
+                        }}
+                        onClick={() => setAnswers((a) => ({ ...a, [item.id]: s.v }))}
+                      >
+                        <div>{s.label}</div>
+                        <div className="opacity-60" style={{ fontSize: "10px" }}>{s.sub}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
 
             <div className="flex items-center justify-between mt-6">
               <button className="text-sm opacity-70 plb-focus" onClick={() => setView("landing")}>← Back</button>
@@ -500,6 +572,7 @@ export default function App() {
                   displayValue={lastResult.composite}
                   size={140}
                   label={levelWord(compositePct(lastResult.composite))}
+                  color={overallBand(lastResult.composite).color}
                 />
               </div>
               <div className="text-left max-w-sm mx-auto">
@@ -509,11 +582,12 @@ export default function App() {
                     domain={d}
                     pct={domainPct(lastResult.domain_scores[d])}
                     displayValue={lastResult.domain_scores[d]}
+                    color={domainBand(lastResult.domain_scores[d]).color}
                   />
                 ))}
               </div>
               <p className="text-xs opacity-60 leading-relaxed mt-6 text-left max-w-sm mx-auto">
-                Each area is scored 5–25, and your overall number runs 20–100. Higher numbers reflect more strain in that area over the past two weeks; lower numbers reflect steadier functioning. This isn't a diagnosis or a pass/fail score, it's simply a baseline so you and the Brain Performance Center coordinator can watch for patterns over time.
+                Each area is scored 0–20, and your overall number runs 0–80. Higher numbers reflect more strain in that area over the past two weeks; lower numbers reflect steadier functioning. This isn't a diagnosis or a pass/fail score, it's simply a baseline so you and the Brain Performance Center coordinator can watch for patterns over time.
               </p>
             </div>
             <p className="text-xs opacity-60 leading-relaxed mb-4">
@@ -570,7 +644,7 @@ export default function App() {
                 <button className="text-xs opacity-60 plb-focus" onClick={handleLogout}>Sign out</button>
               </div>
               <p className="text-xs opacity-60 mb-4 leading-relaxed">
-                Scores run 20–100 overall (5–25 per domain). Higher numbers indicate greater strain, not a diagnosis, use these to spot patterns and track change over time rather than as a clinical threshold.
+                Scores run 0–80 overall (0–20 per domain). Higher numbers indicate greater strain, not a diagnosis, use these to spot patterns and track change over time. A ⚑ on an entry means a critical item was flagged and warrants a personal follow-up regardless of the totals.
               </p>
               {loading && <div className="text-sm opacity-60">Loading…</div>}
               {!loading && groups.length === 0 && (
@@ -581,6 +655,7 @@ export default function App() {
                   const latest = g.entries[0];
                   const prev = g.entries[1];
                   const needsReview = g.entries.some((e) => !e.reviewed);
+                  const anyCritical = g.entries.some((e) => e.critical_flag);
                   return (
                     <button
                       key={g.name}
@@ -588,7 +663,10 @@ export default function App() {
                       onClick={() => { setSelectedName(g.name); setView("reviewer-person"); }}
                     >
                       <div>
-                        <div className="text-sm font-medium">{g.name}</div>
+                        <div className="text-sm font-medium">
+                          {anyCritical && <span style={{ color: "var(--coral)" }}>⚑ </span>}
+                          {g.name}
+                        </div>
                         <div className="plb-mono text-xs opacity-60">
                           {g.entries.length} check-in{g.entries.length > 1 ? "s" : ""} · last {new Date(latest.created_at).toLocaleDateString()}
                           {needsReview ? " · needs review" : ""}
@@ -627,7 +705,10 @@ export default function App() {
                       onClick={() => { setSelectedId(c.id); setNoteDraft(c.note || ""); setView("reviewer-detail"); }}
                     >
                       <div>
-                        <div className="text-sm font-medium">{new Date(c.created_at).toLocaleDateString()}</div>
+                        <div className="text-sm font-medium">
+                          {c.critical_flag && <span style={{ color: "var(--coral)" }}>⚑ </span>}
+                          {new Date(c.created_at).toLocaleDateString()}
+                        </div>
                         <div className="plb-mono text-xs opacity-60">{c.reviewed ? "Reviewed" : "Needs review"}</div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -661,14 +742,26 @@ export default function App() {
                       Failed the quality-control check. Treat this entry's scores with caution.
                     </div>
                   )}
+                  {selected.critical_flag && (
+                    <div className="text-xs mt-1 font-medium" style={{ color: "var(--coral)" }}>
+                      ⚑ Critical item flagged — warrants a personal follow-up regardless of totals.
+                    </div>
+                  )}
+                  {Array.isArray(selected.inconsistencies) && selected.inconsistencies.length > 0 && (
+                    <div className="text-xs mt-1" style={{ color: "var(--warn)" }}>
+                      Possible inconsistency in: {selected.inconsistencies.join(", ")}. Worth revisiting in conversation.
+                    </div>
+                  )}
                 </div>
                 <Vessel
                   pct={compositePct(selected.composite)}
                   displayValue={selected.composite}
                   size={100}
-                  label={levelWord(compositePct(selected.composite))}
+                  label={overallBand(selected.composite).word}
+                  color={overallBand(selected.composite).color}
                 />
               </div>
+              <div className="plb-mono text-xs opacity-70 mb-4">{overallBand(selected.composite).word} overall ({selected.composite} / 80)</div>
               <div className="max-w-sm">
                 {DOMAINS.map((d) => (
                   <ReservoirBar
@@ -676,9 +769,18 @@ export default function App() {
                     domain={d}
                     pct={domainPct(selected.domain_scores[d])}
                     displayValue={selected.domain_scores[d]}
+                    color={domainBand(selected.domain_scores[d]).color}
                   />
                 ))}
               </div>
+              {selected.validity_answers && (
+                <div className="mt-4 pt-4 text-xs opacity-70" style={{ borderTop: "1px solid var(--line)" }}>
+                  <div className="font-medium mb-1">Validity checks (unscored)</div>
+                  {VALIDITY_ITEMS.map((v) => (
+                    <div key={v.id}>{v.text} — {SCALE.find((s) => s.v === selected.validity_answers[v.id])?.label ?? "N/A"}</div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="plb-card rounded-lg p-6 mb-4">
               <div className="text-sm font-medium mb-3">Individual answers</div>
