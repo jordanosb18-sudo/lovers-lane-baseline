@@ -434,7 +434,7 @@ export default function App() {
                 This brief check-in is designed to help identify how you have been functioning over the past two weeks (14 days). There are no right or wrong answers. Please respond based on your actual experience rather than how you think you should be feeling.
               </p>
               <p className="text-sm opacity-80 leading-relaxed mb-3">
-                Your responses are confidential. The only people who will see your individual results are you and the Brain Performance Center coordinator.
+                Your responses are confidential. The only people who will see your individual results are you and the Brain Performance Center.
               </p>
               <p className="text-sm opacity-80 leading-relaxed">
                 Your responses will help us better understand patterns of strength, strain, and recovery across the ministry team and guide the development of practical brain health strategies and resources to support you in your decision-making, adaptability, execution, and resilience.
