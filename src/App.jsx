@@ -432,7 +432,10 @@ export default function App() {
                 Ministry asks a great deal of the brain, body, and nervous system. Over time, the ongoing demands of caring for others, making decisions, managing responsibilities, and remaining emotionally available can begin to affect recovery, focus, emotional regulation, and overall well-being.
               </p>
               <p className="text-sm opacity-80 leading-relaxed mb-3">
-                This brief check-in is designed to help identify how you have been functioning over the past two weeks. There are no right or wrong answers. Please respond based on your actual experience rather than how you think you should be feeling.
+                This brief check-in is designed to help identify how you have been functioning over the past two weeks (14 days). There are no right or wrong answers. Please respond based on your actual experience rather than how you think you should be feeling.
+              </p>
+              <p className="text-sm opacity-80 leading-relaxed mb-3">
+                Your responses are confidential. The only people who will see your individual results are you and the Brain Performance Center coordinator.
               </p>
               <p className="text-sm opacity-80 leading-relaxed">
                 Your responses will help us better understand patterns of strength, strain, and recovery across the ministry team and guide the development of practical brain health strategies and resources to support you in your decision-making, adaptability, execution, and resilience.
@@ -484,7 +487,7 @@ export default function App() {
               <p className="text-xs opacity-60 mt-2">Your answers, including your name, email, and phone number, are confidential.</p>
             </div>
 
-            <p className="text-lg font-medium mb-1">Over the past two weeks, how many days has each been true for you?</p>
+            <p className="text-lg font-medium mb-1">Over the past two weeks (14 days), how many days has each been true for you?</p>
             <p className="text-sm opacity-70 mb-6">There are no right or wrong answers. Answer based on how things have genuinely been, not how you think they should be.</p>
 
             {checkinOrder.map((group) => (
